@@ -1,7 +1,8 @@
-yaib
+yaib-ludumdare
 ====
 
-Yet Another IRC Bot --  Plugin-based IRC bot written in Python
+This is the LudumDare specific configuration of
+[Yaib](https://github.com/collingreen/yaib), the irc bot.
 
 Yaib is a python IRC bot that uses plugins to add any desired
 functionality. Yaib runs anywhere python can run and just needs network access
@@ -20,12 +21,12 @@ will also need git to clone the repository.
 
 clone this repository (you can also just download the master zip)
 ~~~
-git clone git@github.com:collingreen/yaib
+git clone git@github.com:collingreen/yaib_ludumdare
 ~~~
 
 change to the yaib directory
 ~~~
-`cd yaib`
+`cd yaib_ludumdare`
 ~~~
 
 (optional) create a virtualenvironment in the venv folder, then activate it
