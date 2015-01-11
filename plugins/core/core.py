@@ -12,8 +12,9 @@ class Plugin(BasePlugin):
     def createDefaultSettings(self):
         info = (
             "Hi, my name is {nick} and I'm an open source python irc bot. " +
-            "Check out my source code at https://github.com/collingreen/yaib!" +
-            "Try {command_prefix}help for the commands I currently support."
+            "Check out my source code at " +
+            "https://github.com/collingreen/yaib! Try {command_prefix}help " +
+            "for the commands I currently support."
         )
         self.settings.set('yaib_info', info, initial=True)
 
@@ -21,7 +22,7 @@ class Plugin(BasePlugin):
         """
         Logs you in to {nick} as an admin.
         Usage: {command_prefix}login [password]
-        %does_not_notify_plugins%
+        **does_not_notify_plugins**
         """
         if self.yaib.adminManager.login(user, nick, more):
             self.send(nick, 'Logged you in!')
@@ -95,12 +96,20 @@ class Plugin(BasePlugin):
     def admin_reload_settings(self, user, nick, channel, more):
         """Reloads {nick}'s settings"""
         self.yaib.settings.loadSettings()
-        self.send(channel, 'Reloaded settings')
+        self.reply(channel, nick, 'Reloaded settings')
 
     def admin_save_settings(self, user, nick, channel, more):
         """Save {nick}'s settings"""
         self.yaib.settings.saveSettings()
-        self.send(channel, 'Saved settings')
+        self.reply(channel, nick, 'Saved settings')
+
+    def admin_reset_settings(self, user, nick, channel, more):
+        """
+        Called to wipe all local settings for a plugin and restore
+        the defaults.
+        """
+        self.yaib.settings.set(more, {})
+        self.reply(channel, nick, "reset settings starting at %s" % more)
 
     def admin_reload(self, user, nick, channel, more):
         """Reloads all the plugins, or one specified plugin"""
@@ -108,15 +117,15 @@ class Plugin(BasePlugin):
             try:
                 result = self.yaib.loadPlugin(more.strip())
                 if result is True:
-                    self.send(channel, "Reloaded plugin %s" % more)
+                    self.reply(channel, nick, "Reloaded plugin %s" % more)
                     return
             # loading external code - catching all exceptions is ok
             except Exception, e:
-                self.send(channel, "Failed to reload plugin %s" % more)
+                self.reply(channel, nick, "Failed to reload plugin %s" % more)
 
         # if we didnt find the specified plugin, just reload them all
         self.yaib.loadPlugins()
-        self.send(channel, "%d plugins reloaded" % len(self.yaib.plugins))
+        self.reply(channel, nick, "%d plugins reloaded" % len(self.yaib.plugins))
 
     def admin_do(self, user, nick, channel, more):
         """Makes {nick} do an action."""
@@ -158,8 +167,7 @@ class Plugin(BasePlugin):
         pass a number of seconds to shutup to
         override the default.
         """
-        if channel == self.nick:
-            channel = nick
+        target = channel if channel == self.nick else nick
 
         duration = None
         if more:
@@ -167,23 +175,20 @@ class Plugin(BasePlugin):
                 duration = int(more)
             except ValueError, TypeError:
                 pass
-        return self._shutup(channel, duration)
+        return self._shutup(duration)
 
     def command_shutup(self, user, nick, channel, more):
         """Makes {nick} shut up for a while."""
-        if channel == self.nick:
-            channel = nick
-        return self._shutup(channel)
+        return self._shutup()
 
-    def _shutup(self, channel, duration=None):
+    def _shutup(self, duration=None):
         if duration is None:
             duration = self.yaib.settings.get('shutup_duration')
         self.yaib.shutup_until = time.time() + duration
-        self.send(channel, "Ok")
 
     def command_plugins(self, user, nick, channel, more):
         """Lists the loaded plugins"""
-        self.send(channel, ', '.join([p.name for p in self.yaib.plugins]))
+        self.reply(channel, nick, ', '.join([p.name for p in self.yaib.plugins]))
 
     def command_info(self, user, nick, channel, more):
         """Get some basic info about {nick}."""
@@ -215,7 +220,7 @@ class Plugin(BasePlugin):
                 searchables = [self]
             else:
                 # look for plugin and use that
-                for plugin in self.plugins:
+                for plugin in self.yaib.plugins:
                     if more.find(plugin.name) >= 0:
                         searchables.append(plugin)
 

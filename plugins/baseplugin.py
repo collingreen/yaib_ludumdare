@@ -90,7 +90,7 @@ class BasePlugin(object):
         pass
 
 
-    def onNickChange(self, nick):
+    def onNickChange(self, nick, old_nick):
         """Called when {nick}'s nick changes."""
         pass
 
@@ -124,6 +124,10 @@ class BasePlugin(object):
 
     def onAction(self, channel, action):
         """Called when {nick} does an action in a channel"""
+        pass
+
+    def onCommand(self, user, nick, channel, command, more):
+        """Called when {nick} runs a command on behalf of a user."""
         pass
 
     def onAdminCommand(self, user, nick, channel, command, more):

@@ -61,6 +61,9 @@ class YaibTwistedIRCProtocol(irc.IRCClient):
 
         self.msg(to_bytes(channel), to_bytes(message))
 
+    def describe(self, channel, action):
+        irc.IRCClient.describe(self, to_bytes(channel), to_bytes(action))
+
     def setNick(self, nick):
         irc.IRCClient.setNick(self, to_bytes(nick))
 
@@ -353,6 +356,10 @@ class YaibTwistedIRCProtocol(irc.IRCClient):
         channel = params[0]
         kicked = params[1]
         message = params[-1]
+
+        # overwrite message with blank if message is simply the kicker nick
+        if message == kicker:
+            message = ''
 
         if string.lower(kicked) == string.lower(self.nickname):
             self.kickedFrom(channel, kicker_user, kicker, message)

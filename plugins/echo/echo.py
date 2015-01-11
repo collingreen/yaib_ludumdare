@@ -5,7 +5,7 @@ class Plugin(BasePlugin):
     name = 'EchoPlugin'
 
     def command_unicode(self, user, nick, channel, more):
-        self.send(channel, u'┠')
+        self.reply(channel, nick, u'┠')
 
     def command_test_settings(self, user, nick, channel, more):
         self.settings.set('custom', 'woohooooo')
@@ -20,9 +20,9 @@ class Plugin(BasePlugin):
         """Called when ALL the plugins are loaded."""
         print "ECHO - on plugins loaded"
 
-    def onNickChange(self, nick):
+    def onNickChange(self, nick, old_nick):
         """Called when yaib's nick changes."""
-        print "ECHO - on nick change", nick
+        print "ECHO - on nick change", nick, 'from', old_nick
 
 
     def onConnected(self):
@@ -58,6 +58,10 @@ class Plugin(BasePlugin):
     def onAction(self, channel, action):
         """Called when yaib does an action in a channel"""
         print "ECHO - action", channel, action
+
+    def onCommand(self, user, nick, channel, command, more):
+        """Called when {nick} runs a command on behalf of a user."""
+        print "ECHO - onCommand", user, nick, channel, command, more
 
     def onAdminCommand(self, user, nick, channel, command, more):
         """Called when {nick} runs an admin command on behalf of a user."""

@@ -36,7 +36,7 @@ class Yaib(object):
         self.plugins = []
         self.shutup_until = None
 
-        self.DONT_NOTIFY_PLUGINS_FLAG = '%does_not_notify_plugins%'
+        self.DONT_NOTIFY_PLUGINS_FLAG = '**does_not_notify_plugins**'
 
         # load configuration
         configFile = 'config.json'
@@ -44,7 +44,7 @@ class Yaib(object):
             f = open(configFile)
         except: # TODO: Catch the real exceptions here
             logging.error(
-                "Could not open configuration file %s. Quiting." % configFile
+                "Could not open configuration file %s. Quitting." % configFile
             )
             sys.exit(1)
 
@@ -62,6 +62,7 @@ class Yaib(object):
         # TODO: move this config check to settings module itself
         if self.config.settings.module == 'json':
             self.settings = settings.json(self.config)
+            self.settings.loadSettings()
         else:
             logging.error(
                 "Unsupported settings module %s. Exiting." %
@@ -351,10 +352,12 @@ class Yaib(object):
 
             # found it, execute it
             if func:
+                command_event_name = 'onCommand'
                 func(user, nick, channel, more)
 
                 # if admin command, publish and notify plugins
                 if is_admin_command:
+                    command_event_name = 'onAdminCommand'
                     pub.sendMessage(
                         'core:adminCommand',
                         user=user,
@@ -364,13 +367,12 @@ class Yaib(object):
                         more=more
                     )
 
-                    # special cases not to send to plugins
-                    # TODO: handle this more cleanly - let plugin specify
-                    if (not func.__doc__ or
-                            self.DONT_NOTIFY_PLUGINS_FLAG not in func.__doc__):
-                        self.callInPlugins(
-                            'onAdminCommand', user, nick, channel, command, more
-                        )
+                # special cases not to send to plugins
+                if (not func.__doc__ or
+                        self.DONT_NOTIFY_PLUGINS_FLAG not in func.__doc__):
+                    self.callInPlugins(
+                        command_event_name, user, nick, channel, command, more
+                    )
 
                 return True
 
@@ -410,12 +412,12 @@ class Yaib(object):
         self.server_connection.quit()
 
     def setNick(self, nick):
-        self.nick = nick
+        old_nick = self.nick if hasattr(self, 'nick') else ''
         # TODO: support multiple connections
         if hasattr(self, 'server_connection'):
             self.server_connection.setNick(nick)
-
-        self.callInPlugins('onNickChange', nick)
+            self.nick = nick
+            self.callInPlugins('onNickChange', nick, old_nick)
 
     def sendMessage(self, channel, message):
         """
