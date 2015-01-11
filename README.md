@@ -63,6 +63,16 @@ background (usually ctrl-z, then `bg`), or in a separate `screen`. This will
 let Yaib keep running while you do other things (just don't turn off the
 server).
 
+After the first setup, you can simply run
+~~~
+./update.sh
+~~~
+
+This will activate the virtualenvironment in venv (you'll need to change the
+script for windows), update the source, install any new requirements,
+and install any new plugins. This requires everything to already be working and
+expects this to be a git repository.
+
 
 ## Usage
 Yaib ships with several plugins that provide many features out of the box. You
