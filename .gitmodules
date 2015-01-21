@@ -1,6 +1,3 @@
-[submodule "plugins/simpleresponse"]
-	path = plugins/simpleresponse
-	url = https://github.com/collingreen/yaib_plugin_simpleresponse
 [submodule "plugins/logger"]
 	path = plugins/logger
 	url = https://github.com/collingreen/yaib_plugin_logger
