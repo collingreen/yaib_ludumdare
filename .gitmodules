@@ -4,3 +4,6 @@
 [submodule "plugins/countdown"]
 	path = plugins/countdown
 	url = https://github.com/collingreen/yaib_plugin_countdown
+[submodule "plugins/simple_response"]
+	path = plugins/simple_response
+	url = https://github.com/collingreen/yaib_plugin_simple_response
